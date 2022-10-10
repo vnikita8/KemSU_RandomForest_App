@@ -1,0 +1,1 @@
+pyuic5 C:\Users\EHOT\Desktop\VSCODE\design.ui -o C:\Users\EHOT\Desktop\VSCODE\design.py
