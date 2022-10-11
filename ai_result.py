@@ -17,7 +17,12 @@ replace_EPHX1={"EPHX1 ": {"T/T":1, "T/C":0,"C/C":0}}
 class Forest_AI():
     def __init__(self, is_smoking = True, is_Il1b = True,is_TNF = True,is_APEX1 = True,is_XPD = True, 
     is_EGFR = True,is_CHEK2 = True,is_TGFb1 = True, is_EPHX1 = True):
-        self.df = pd.read_csv("data_rak.csv", delimiter=';').dropna()
+        self.error_read = False
+        try:
+            self.df = pd.read_csv("data_rak.csv", delimiter=';').dropna()
+        except: 
+            self.error_read = True
+            return
         self.df = self.df.replace(replace_smoking) 
         #Il1b +
         self.df = self.df.replace(replace_IL1b) if is_Il1b else self.df.drop(list(replace_IL1b.keys())[0], axis = 1)
@@ -34,10 +39,10 @@ class Forest_AI():
         #TGFb1 +
         self.df = self.df.replace(replace_TGFb1) if is_TGFb1 else self.df.drop(list(replace_TGFb1.keys())[0], axis = 1)
         #EPHX1 +
-        self.df = self.df.replace(replace_EPHX1) if is_EPHX1 else self.df.drop(list(replace_EPHX1.keys())[0], axis = 1)
+        self.df = self.df.replace(replace_EPHX1) if is_EPHX1 else self.df.drop(list(replace_EPHX1.keys())[0], axis = 1)    
 
         
-    def train(self, test_size = 0.3, random_split = 228, depth_par = 5, random_state_par = 739):
+    def train(self, test_size = 0.3, random_split = 2958, depth_par = 5, random_state_par = 1751):
         if test_size > 1 or test_size<=0:
             return None
 
@@ -45,8 +50,8 @@ class Forest_AI():
         self.df = self.df.drop('Status', axis = 1)
         print(self.df)
         x = self.df.values
-        x_train,x_test,y_train,y_test=train_test_split(x,y,test_size=test_size, random_state = random_split)
-        self.rf = RandomForestClassifier(max_depth=depth_par, random_state = random_state_par)
+        x_train,x_test,y_train,y_test=train_test_split(x,y,test_size=test_size, random_state = random_split, stratify=y)
+        self.rf = RandomForestClassifier(n_jobs=-1,max_depth=depth_par, random_state = random_state_par, bootstrap = 1, min_samples_split=2, n_estimators=11, min_samples_leaf = 3, max_features='log2')
         self.rf.fit(x_train, y_train)
         rf_pred = self.rf.predict(x_test)
         acc_rf = accuracy_score(y_test, rf_pred)

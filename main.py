@@ -32,6 +32,9 @@ class MainApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
         ai_help = ai.Forest_AI(is_smoking = isSmoking, is_Il1b = isIL1b,
         is_TNF = isTNF, is_APEX1 = isAPEX1,is_XPD = isXPD,
         is_EGFR = isEGFR, is_CHEK2 = isCHEK2, is_TGFb1 = isTGFb1, is_EPHX1 = isEPHX1)
+        if ai_help.error_read:
+            QtWidgets.QMessageBox.about(self,"Ошибка", "Поместите файл с данными 'data_rak.csv' в один каталог с приложением!")
+            return
         
         smoking = 1 if self.is_Smoking.isChecked() else 0
         data = []
@@ -68,6 +71,7 @@ class MainApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
         self.result_window = ResultWindow(self.textName.text(), self.textAge.text(), res, score = score)
         self.result_window.show()
         
+        
 
 
 class ResultWindow(QtWidgets.QWidget, result.Ui_Result):
@@ -77,11 +81,13 @@ class ResultWindow(QtWidgets.QWidget, result.Ui_Result):
         self.textAge.setText(age)
         self.textFIO.setText(name) 
         res = "Выявлены генетические маркеры высокого риска рака легкого." if result_bool else "Генетические маркеры высокого риска рака легкого не выявлены."
-        res = res + f"\nТочность прогноза: {score*100:.{1}f}" if score else res
         self.textResult.setText(res)
         self.textStaff.setText(staff)
         self.textData.setText(str(datetime.date.today()))
         self.btn.clicked.connect(self.close_window)
+        
+        QtWidgets.QMessageBox.about(self, "Точность модели", f"Точность ответа составляет: {(score*100):.{1}f}%")
+        
 
     def close_window(self):
         self.close()
